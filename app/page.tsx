@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ArrowLeft,
   Grid3X3,
@@ -10,61 +10,117 @@ import {
   ChevronRight,
   Home,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FileText } from "lucide-react";
-import { mockFileSystem } from "@/lib/mock-data";
+//@ts-ignore
+import { SunspotLoader } from "react-awesome-loaders";
 import PdfPurchaseModal from "@/components/pdf-purchase-modal";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 // Added types
 interface FSFolder {
-  id: number;
+  id: string; // path id from API
   name: string;
   itemCount: number;
   path: string;
 }
 interface FSFile {
-  id: number;
+  id: string; // file id (hash or path)
   name: string;
   size: string;
   modified: string;
+  key: string; // object path inside bucket
+  customMetadata?: Record<string, string> | null;
 }
 interface FSNode {
   folders: FSFolder[];
   files: FSFile[];
 }
-const typedFS: Record<string, FSNode> = mockFileSystem as Record<
-  string,
-  FSNode
->;
+type FileSystemMap = Record<string, FSNode>;
 
 export default function HomePage() {
   const [currentPath, setCurrentPath] = useState<string>("/");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedPdf, setSelectedPdf] = useState<FSFile | null>(null);
-  const [userPoints, setUserPoints] = useState<number>(0);
+  const [userCredits, setUserCredits] = useState<number>(0);
   const [showPurchaseModal, setShowPurchaseModal] = useState<boolean>(false);
+  const [fileSystem, setFileSystem] = useState<FileSystemMap>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const { isSignedIn } = useAuth();
+  const { redirectToSignIn } = useClerk();
   const routerNext = useRouter();
 
-  // Load points from localStorage on component mount
+  const prettify = (s: string) => s.replace(/_/g, " ");
+
+
+  // Load user points (credits) from server when signed in
   useEffect(() => {
-    const savedPoints = localStorage.getItem("userPoints");
-    if (savedPoints) setUserPoints(parseInt(savedPoints));
+    let cancelled = false;
+    async function loadCredits() {
+      if (!isSignedIn) {
+        setUserCredits(0);
+        return;
+      }
+      try {
+        const res = await fetch("/api/credits", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed credits fetch");
+        const data = await res.json();
+        if (!cancelled && typeof data?.credits === "number") {
+          setUserCredits(data.credits);
+        }
+      } catch {
+        // silent fail; keep previous points
+      }
+    }
+    loadCredits();
+    return () => {
+      cancelled = true;
+    };
+  }, [isSignedIn]);
+
+  // Fetch file system from API
+  const fetchFileSystem = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch("/api/files/getfiles", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      const data = await res.json();
+      if (data?.fileSystem) {
+        setFileSystem(data.fileSystem as FileSystemMap);
+      } else {
+        throw new Error("Malformed response");
+      }
+    } catch (e: any) {
+      setError(e.message || "Unable to load files");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Save points to localStorage whenever points change
   useEffect(() => {
-    localStorage.setItem("userPoints", userPoints.toString());
-  }, [userPoints]);
+    fetchFileSystem();
+  }, [fetchFileSystem]);
 
   // Get current folder data
   const getCurrentFolderData = (): FSNode => {
-    return typedFS[currentPath] || { folders: [], files: [] };
+    const node = fileSystem[currentPath] || { folders: [], files: [] };
+    return {
+      folders: node.folders.map(f => ({
+        ...f,
+        name: f.name.replace(/_/g, " "),
+      })),
+      files: node.files.map(f => ({
+        ...f,
+        name: f.name.replace(/_/g, " "),
+      })),
+    };
   };
 
   // Navigate to folder
@@ -99,6 +155,7 @@ export default function HomePage() {
     return breadcrumbs;
   };
 
+
   const Breadcrumb = () => {
     const breadcrumbs = getBreadcrumbs();
 
@@ -116,7 +173,7 @@ export default function HomePage() {
               }`}
               disabled={index === breadcrumbs.length - 1}
             >
-              {crumb.name}
+              {crumb.path === "/" ? "Castle" : prettify(crumb.name)}
             </button>
             {index < breadcrumbs.length - 1 && (
               <ChevronRight className="w-4 h-4 text-slate-600" />
@@ -129,21 +186,72 @@ export default function HomePage() {
 
   const openPdf = (file: FSFile) => {
     if (!isSignedIn) {
-      routerNext.push("/sign-in");
+      // Persist intended file so we can reopen after auth
+      try {
+        localStorage.setItem("pendingFileId", file.id);
+      } catch {}
+      // Use Clerk helper for a proper sign-in flow
+      if (typeof window !== "undefined") {
+        redirectToSignIn({
+          redirectUrl: window.location.pathname || "/",
+        });
+      } else {
+        routerNext.push("/sign-in");
+      }
       return;
     }
+
     setSelectedPdf(file);
+
     setShowPurchaseModal(true);
   };
 
+  // After login, if a pending file is stored, open it automatically
+  useEffect(() => {
+    if (!isSignedIn) return;
+    const pendingId =
+      typeof window !== "undefined"
+        ? localStorage.getItem("pendingFileId")
+        : null;
+    if (!pendingId) return;
+    // Search file in current fileSystem (across all paths)
+    for (const node of Object.values(fileSystem)) {
+      const match = node.files.find((f) => f.id === pendingId);
+      if (match) {
+        setSelectedPdf(match);
+        setShowPurchaseModal(true);
+        try {
+          localStorage.removeItem("pendingFileId");
+        } catch {}
+        break;
+      }
+    }
+  }, [isSignedIn, fileSystem]);
+
   const PremiumFileGrid = () => {
     const { folders, files } = getCurrentFolderData();
+
+    const query = searchQuery.trim().toLowerCase();
+    const filteredFolders = query
+      ? folders.filter(
+          (f) =>
+            f.name.toLowerCase().includes(query) ||
+            prettify(f.name).toLowerCase().includes(query)
+        )
+      : folders;
+    const filteredFiles = query
+      ? files.filter(
+          (f) =>
+            f.name.toLowerCase().includes(query) ||
+            prettify(f.name).toLowerCase().includes(query)
+        )
+      : files;
 
     if (viewMode === "list") {
       return (
         <div className="premium-file-list">
           {/* Folders */}
-          {folders.map((folder: FSFolder, index: number) => (
+          {filteredFolders.map((folder: FSFolder) => (
             <div
               key={folder.id}
               className="premium-list-item group"
@@ -165,7 +273,7 @@ export default function HomePage() {
           ))}
 
           {/* PDF Files */}
-          {files.map((file: FSFile, index: number) => (
+          {filteredFiles.map((file: FSFile) => (
             <div
               key={file.id}
               className="premium-list-item group"
@@ -175,7 +283,7 @@ export default function HomePage() {
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div className="list-item-content">
-                <div className="list-item-name">{file.name}</div>
+                <div className="list-item-name">{prettify(file.name)}</div>
                 <div className="list-item-meta">
                   {file.modified} • {file.size}
                 </div>
@@ -193,7 +301,7 @@ export default function HomePage() {
     return (
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4 mb-8">
         {/* Folders */}
-        {folders.map((folder: FSFolder, index: number) => (
+        {filteredFolders.map((folder: FSFolder) => (
           <div
             key={folder.id}
             className="premium-file-card group"
@@ -203,7 +311,7 @@ export default function HomePage() {
               <div className="file-icon-container folder-icon">
                 <Folder className="w-5 h-5 text-white" />
               </div>
-              <div className="file-title">{folder.name}</div>
+              <div className="file-title">{prettify(folder.name)}</div>
             </div>
             <div className="file-meta">
               <span>{folder.itemCount} items</span>
@@ -213,7 +321,7 @@ export default function HomePage() {
         ))}
 
         {/* PDF Files */}
-        {files.map((file: FSFile, index: number) => (
+        {filteredFiles.map((file: FSFile) => (
           <div
             key={file.id}
             className="premium-file-card group"
@@ -223,7 +331,7 @@ export default function HomePage() {
               <div className="file-icon-container pdf-icon">
                 <FileText className="w-5 h-5 text-white" />
               </div>
-              <div className="file-title">{file.name}</div>
+              <div className="file-title">{prettify(file.name)}</div>
             </div>
             <div className="file-meta">
               <span>{file.modified}</span>
@@ -242,23 +350,16 @@ export default function HomePage() {
         className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
       >
         <Grid3X3 className="w-4 h-4" />
-        Grid
+        Fancy Grid
       </button>
       <button
         onClick={() => setViewMode("list")}
         className={`view-btn ${viewMode === "list" ? "active" : ""}`}
       >
         <List className="w-4 h-4" />
-        List
+        Boring List
       </button>
-      <div className="ml-auto">
-        <button className="sort-btn">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
-          </svg>
-          Sort by Name
-        </button>
-      </div>
+     
     </div>
   );
 
@@ -272,7 +373,7 @@ export default function HomePage() {
         <Breadcrumb />
         <div className="search-container">
           <Input
-            placeholder="Search files and folders..."
+            placeholder="Hunt legendary PDFs... or just type a word."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -281,8 +382,23 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* View Controls */}
-      <ViewControls />
+      {/* View Controls & Refresh */}
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <ViewControls />
+        </div>
+        <div className="flex gap-2">
+            <Button
+            variant="default"
+            size="sm"
+            onClick={fetchFileSystem}
+            disabled={loading}
+            className="mt-1 bg-blue-600 hover:bg-blue-700 text-white border-none"
+            >
+            {loading ? "Politely asking..." : "Summon Fresh Data"}
+            </Button>
+        </div>
+      </div>
 
       {/* Back Button */}
       {currentPath !== "/" && (
@@ -293,19 +409,31 @@ export default function HomePage() {
           className="flex items-center text-slate-300 hover:text-white hover:bg-slate-800 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back
+          Retreat Heroically
         </Button>
       )}
 
-      {/* File Grid */}
-      {totalItems === 0 ? (
+      {/* File Grid / States */}
+      {error && (
+        <div className="text-center py-6 text-red-400 text-sm">
+          Files staged a rebellion: {error}
+        </div>
+      )}
+      {!error && loading && (
+        <div className="flex justify-center items-center py-12 text-slate-500 gap-x-2">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <span className="ml-2">Summoning files...</span>
+        </div>
+      )}
+      {!loading && !error && totalItems === 0 && (
         <div className="text-center py-12">
           <Folder className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-          <p className="text-slate-500">This folder is empty</p>
+          <p className="text-slate-500">
+            This folder is emptier than my brain after finals.
+          </p>
         </div>
-      ) : (
-        <PremiumFileGrid />
       )}
+      {!loading && !error && totalItems > 0 && <PremiumFileGrid />}
 
       {/* PDF Purchase Modal */}
       <PdfPurchaseModal
@@ -314,9 +442,10 @@ export default function HomePage() {
           setShowPurchaseModal(false);
           setSelectedPdf(null);
         }}
-        pdfFile={selectedPdf}
-        userPoints={userPoints}
-        onPointsUpdate={setUserPoints}
+        // Cast due to differing id type (string from API) – component updated to string but build cache may lag
+        pdfFile={selectedPdf as any}
+        userPoints={userCredits}
+        onPointsUpdate={setUserCredits}
       />
     </div>
   );

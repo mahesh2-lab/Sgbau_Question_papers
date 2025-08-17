@@ -1,10 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import SidebarCredits from "./SidebarCredits";
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Upload, CreditCard, Settings, Menu, X } from "lucide-react";
+import '../app/globals.css';
+import {
+  Home,
+  Upload,
+  CreditCard,
+  Settings,
+  Menu,
+  X,
+  Bell,
+} from "lucide-react";
 import { Toaster } from "sonner";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 import { AnimatedButton } from "./ui/animated-button";
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +29,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [userPoints, setUserPoints] = useState(0);
+  const { isSignedIn, isLoaded } = useUser();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -33,14 +49,6 @@ export default function Layout({ children }: LayoutProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Load points from localStorage on component mount
-  useEffect(() => {
-    const savedPoints = localStorage.getItem("userPoints");
-    if (savedPoints) {
-      setUserPoints(parseInt(savedPoints));
-    }
-  }, []);
-
   const navigationItems = [
     { id: "home", label: "Home", icon: Home, path: "/" },
     {
@@ -48,6 +56,12 @@ export default function Layout({ children }: LayoutProps) {
       label: "Contribute",
       icon: Upload,
       path: "/contribute",
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      path: "/notifications",
     },
     { id: "credits", label: "Credits", icon: CreditCard, path: "/credits" },
     { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
@@ -118,6 +132,11 @@ export default function Layout({ children }: LayoutProps) {
         <nav className="sidebar-nav">
           {navigationItems.map((item) => (
             <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleNavClick(item.path);
+              }}
               key={item.id}
               className={`nav-item ${pathname === item.path ? "active" : ""}`}
               title={sidebarCollapsed ? item.label : ""}
@@ -139,19 +158,13 @@ export default function Layout({ children }: LayoutProps) {
           ))}
         </nav>
 
-        {/* Points Section */}
-        <div className="points-section-small">
-          <div className="points-card-small">
-            {!sidebarCollapsed && (
-              <div className="points-label-small">Points</div>
-            )}
-            <div className="points-value-small">
-              <div className="points-number-small">{userPoints}</div>
-            </div>
-          </div>
-        </div>
+        {/* Credits Section */}
+        <SidebarCredits sidebarCollapsed={!!sidebarCollapsed} />
 
         <style jsx>{`
+          .cursor-pointer[disabled] {
+            cursor: pointer !important;
+          }
           .mobile-overlay {
             position: fixed;
             top: 0;
@@ -186,6 +199,10 @@ export default function Layout({ children }: LayoutProps) {
           /* Ensure sidebar doesn't expand on click */
           .premium-sidebar.collapsed {
             pointer-events: auto;
+          }
+          .points-label-small button,
+          .points-label-small button * {
+            pointer-events: auto !important;
           }
 
           /* Collapsed State */

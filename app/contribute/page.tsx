@@ -20,10 +20,10 @@ export default function ContributePage() {
   const [semester, setSemester] = useState("");
   const [branch, setBranch] = useState("");
   const [subject, setSubject] = useState("");
-  const [subjectName, setSubjectName] = useState("");
   const [paperType, setPaperType] = useState("");
   const [solveType, setSolveType] = useState("");
   const [unitOrYear, setUnitOrYear] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   // Set program to Engineering by default
   const program = "Bachelor of Engineering";
@@ -37,20 +37,20 @@ export default function ContributePage() {
         program_name: "Bachelor of Engineering",
         semesters: [
           {
-            semester_number: "IV",
+            semester_number: "Semester_IV",
             branches: [
               {
-                branch_name: "Civil Engg (CE)",
+                branch_name: "Civil Engineering",
                 subjects: [
                   "Building Planning Designing & CAD",
-                  "Hydrology & Water Resource Engg.",
+                  "Hydrology & Water Resource Engineering",
                   "Surveying",
                   "Geotechnical Engineering-1",
                   "Structural Analysis-1",
                 ],
               },
               {
-                branch_name: "Mechanical Engg (ME)",
+                branch_name: "Mechanical Engineering",
                 subjects: [
                   "Material Science",
                   "Energy Conversion-I",
@@ -60,17 +60,18 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg (EE, EP, EX)",
+                branch_name: "Electrical Engineering",
                 subjects: [
                   "Electromagnetic Fields",
                   "Electrical Measurements & Instrumentation",
                   "Power Systems-I / Control Systems",
+                  "Power Systems-I",
                   "Analog & Digital Circuits",
-                  "Signals & Systems / Numerical Methods & Optimization Techniques",
+                  "Signals & Systems",
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg (ETC)",
+                branch_name: "Electronics and Telecommunication Engineering",
                 subjects: [
                   "Analog and Digital Communication",
                   "Analog Circuits",
@@ -80,17 +81,17 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg (KS)",
+                branch_name: "Computer Science and Engineering",
                 subjects: [
                   "Artificial Intelligence",
-                  "Data Communication & Networking / Computer Networks",
+                  "Data Communication & Networking",
                   "Operating System",
-                  "Microprocessor & Assembly Lang. Prog / Microprocessor & Interfacing",
+                  "Microprocessor & Assembly Lang. Prog",
                   "Theory of Computation",
                 ],
               },
               {
-                branch_name: "Information Technology (IT)",
+                branch_name: "Information Technology",
                 subjects: [
                   "Computer Organization & Architecture",
                   "Data Communication & Networking",
@@ -100,7 +101,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Artificial Intelligence & Data Science (AD)",
+                branch_name: "Artificial Intelligence & Data Science",
                 subjects: [
                   "Artificial Intelligence",
                   "Statistical Methods",
@@ -110,7 +111,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Industrial IoT (IIoT)",
+                branch_name: "Industrial IoT",
                 subjects: [
                   "Transducers and Data Acquisition System",
                   "Introduction to Signal Processing",
@@ -120,8 +121,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name:
-                  "Computer Science and Engineering (Data Science) (KD)",
+                branch_name: "Computer Science and Engineering (Data Science)",
                 subjects: [
                   "Artificial Intelligence",
                   "Data Communication & Networking",
@@ -137,106 +137,105 @@ export default function ContributePage() {
             ],
           },
           {
-            semester_number: "V",
+            semester_number: "Semester_V",
             branches: [
               {
-                branch_name: "Civil Engg (CE)",
+                branch_name: "Civil Engg",
                 subjects: [
                   "Design of Reinforced & Prestressed Concrete Structures",
                   "Surveying & Geomatics",
                   "Numerical Methods & Computer Programming",
-                  "Electives: Highway Construction & Management / Repairs & Rehabilitation of Structures / Sustainable Construction Methods/Watershed Engg. & Management",
-                  "Electives: Basic of Building Construction / Disaster Management",
+                  "Electives: Highway Construction & Management",
+                  "Electives: Basic of Building Construction",
                 ],
               },
               {
-                branch_name: "Mechanical Engg (ME)",
+                branch_name: "Mechanical Engg",
                 subjects: [
                   "Heat Transfer",
                   "Metrology & Quality Control",
                   "Kinematics of Machines",
                   "Measurement Systems",
-                  "Electives: Industrial Robotics & Applications / Modern Manufacturing Techniques",
+                  "Electives: Industrial Robotics & Applications",
                 ],
               },
               {
-                branch_name: "Electrical Engg (EE, EP, EX)",
+                branch_name: "Electrical Engg",
                 subjects: [
-                  "Control Systems / Power Systems-I",
+                  "Control Systems",
                   "Microprocessor & Microcontroller",
                   "Electrical Machines-II",
                   "Multiple Electives",
-                  "Electives: Electrical Drives / Power Supply Systems",
+                  "Electives: Electrical Drives",
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg (ETC)",
+                branch_name: "Electronics & Telecommunication Engg",
                 subjects: [
                   "Microcontroller",
                   "Control System",
                   "Digital Signal Processing",
-                  "Electives: Power Electronics / Fiber Optic Communication / Speech and Audio Processing",
-                  "Electives: Sensors and Transducers / Basic Electronic Devices and Circuits",
+                  "Electives: Power Electronics",
+                  "Electives: Sensors and Transducers",
                 ],
               },
               {
-                branch_name: "Computer Science & Engg (KS)",
+                branch_name: "Computer Science & Engg",
                 subjects: [
-                  "Database Management Systems / Databases",
-                  "Compiler Design / Compilers",
-                  "Computer Architecture & Organization / Computer Organization & Architecture",
+                  "Database Management Systems",
+                  "Compiler Design",
+                  "Computer Architecture & Organization",
                   "Multiple Electives",
-                  "Electives: Data Structure & Algorithms / Computational Biology",
+                  "Electives: Data Structure & Algorithms",
                 ],
               },
               {
-                branch_name: "Information Technology (IT)",
+                branch_name: "Information Technology",
                 subjects: [
                   "Database Management Systems",
                   "Theory of Computation",
                   "Software Engineering",
-                  "Electives: Information Security Systems / Data Science & Statistics / Internet of Things",
+                  "Electives: Information Security Systems",
                   "Data Structure & Algorithms",
                 ],
               },
               {
-                branch_name: "Artificial Intelligence & Data Science (AD)",
+                branch_name: "Artificial Intelligence & Data Science",
                 subjects: [
                   "Data Science",
                   "Machine Learning Techniques",
                   "Computer Networks",
-                  "Electives: Internet of Things / Cyber Security / Cloud Computing",
-                  "Electives: Data Structure and Algorithm / Database Management Systems / Software Testing and Quality Assurance",
+                  "Electives: Internet of Things",
+                  "Electives: Data Structure and Algorithm",
                 ],
               },
               {
-                branch_name: "Industrial IoT (IIoT)",
+                branch_name: "Industrial IoT",
                 subjects: [
                   "Communication Network",
                   "Microcontrollers and Applications",
                   "Python Programming",
-                  "Electives: Power Electronics / Programmable Logic Controller / Open Source Technology for Industry 4.0 / Data Structure",
-                  "Electives: Introduction to IoT / Sensors and Transducers / Industry 4.0 / Power Electronics",
+                  "Electives: Power Electronics",
+                  "Electives: Introduction to IoT",
                 ],
               },
               {
-                branch_name:
-                  "Computer Science and Engineering (Data Science) (KD)",
+                branch_name: "Computer Science and Engineering (Data Science)",
                 subjects: [
                   "Database Management Systems",
                   "Business Intelligence & Analytics",
                   "Computer Architecture & Organization",
-                  "Electives: Data Storage & Network / Data Science and Statistics / Cyber Security",
+                  "Electives: Data Storage & Network",
                   "Data Structure & Algorithms",
                 ],
               },
             ],
           },
           {
-            semester_number: "VI",
+            semester_number: "Semester_VI",
             branches: [
               {
-                branch_name: "Civil Engg (CE)",
+                branch_name: "Civil Engg",
                 subjects: [
                   "Design of Steel Structures",
                   "Environmental Engineering - 1",
@@ -246,7 +245,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg (ME)",
+                branch_name: "Mechanical Engg",
                 subjects: [
                   "Design of Machine Elements",
                   "Dynamics of Machines",
@@ -256,7 +255,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg (EE, EP, EX)",
+                branch_name: "Electrical Engg",
                 subjects: [
                   "Power Electronics",
                   "Power Systems II / Electrical Energy Distribution & Utilization",
@@ -266,7 +265,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg (ETC)",
+                branch_name: "Electronics & Telecommunication Engg",
                 subjects: [
                   "Communication Network",
                   "Computer Architecture",
@@ -276,42 +275,42 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg (KS)",
+                branch_name: "Computer Science & Engg",
                 subjects: [
                   "Software Engineering",
-                  "Design & Analysis of Algorithms / Algorithmic",
-                  "Security Policy & Governance / Signals & Systems",
+                  "Design & Analysis of Algorithms",
+                  "Security Policy & Governance",
                   "Multiple Electives",
-                  "Electives: Cyber Law & Ethics / Data Communication & Internet",
+                  "Electives: Cyber Law & Ethics",
                 ],
               },
               {
-                branch_name: "Information Technology (IT)",
+                branch_name: "Information Technology",
                 subjects: [
                   "Compiler Design",
                   "Design & Analysis of Algorithms",
                   "Artificial Intelligence",
                   "Multiple Electives",
-                  "Electives: Cyber Law & Ethics / Data Communication & Internet",
+                  "Electives: Cyber Law & Ethics",
                 ],
               },
               {
-                branch_name: "Artificial Intelligence & Data Science (AD)",
+                branch_name: "Artificial Intelligence & Data Science",
                 subjects: [
                   "Data Analytics",
                   "Artificial Neural Network & Fuzzy Logic",
                   "Database Management System for Data Science",
-                  "Electives: Data Warehousing / Cryptography / Robotics",
-                  "Electives: Software Project Management / E-Commerce / Introduction to Data Science",
+                  "Electives: Data Warehousing",
+                  "Electives: Software Project Management",
                 ],
               },
             ],
           },
           {
-            semester_number: "VII",
+            semester_number: "Semester_VII",
             branches: [
               {
-                branch_name: "Civil Engg (CE)",
+                branch_name: "Civil Engg",
                 subjects: [
                   "Structural Analysis II",
                   "Geotechnical Engineering II",
@@ -321,7 +320,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg (ME)",
+                branch_name: "Mechanical Engg",
                 subjects: [
                   "Mechatronics",
                   "Productivity Techniques",
@@ -331,9 +330,9 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg (EE, EP, EX)",
+                branch_name: "Electrical Engg",
                 subjects: [
-                  "Electrical Energy Distribution & Utilization / Power System II",
+                  "Electrical Energy Distribution & Utilization",
                   "Digital Signal Processing",
                   "Entrepreneurship & Project Management",
                   "Multiple Electives",
@@ -341,7 +340,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg (ET)",
+                branch_name: "Electronics & Telecommunication Engg",
                 subjects: [
                   "Cryptography & Network security",
                   "Digital Image and Video Processing",
@@ -351,17 +350,17 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg (KS)",
+                branch_name: "Computer Science & Engg",
                 subjects: [
                   "Social Science & Engineering Economics",
-                  "Computer Graphics / Digital Signal Processing",
+                  "Computer Graphics",
                   "Cloud Computing",
                   "Multiple Electives",
                   "Multiple Electives",
                 ],
               },
               {
-                branch_name: "Information Technology (IT)",
+                branch_name: "Information Technology",
                 subjects: [
                   "Mobile Computing",
                   "Embedded Systems",
@@ -371,7 +370,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Artificial Intelligence & Data Science (AD)",
+                branch_name: "Artificial Intelligence & Data Science",
                 subjects: [
                   "Social Science & Engineering Economics",
                   "Deep Learning",
@@ -383,10 +382,10 @@ export default function ContributePage() {
             ],
           },
           {
-            semester_number: "VIII",
+            semester_number: "Semester_VIII",
             branches: [
               {
-                branch_name: "Civil Engg (CE)",
+                branch_name: "Civil Engg",
                 subjects: [
                   "Construction Project Management",
                   "Construction Economics & Estimating - Costing",
@@ -395,7 +394,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg (ME)",
+                branch_name: "Mechanical Engg",
                 subjects: [
                   "Operation Research Techniques",
                   "I.C. Engines",
@@ -404,16 +403,16 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg (EE, EP, EX)",
+                branch_name: "Electrical Engg",
                 subjects: [
-                  "Embedded Systems / Power System Protection",
-                  "Power Systems Protection / Computer Methods in Power System Analysis / Digital Image Processing",
+                  "Embedded Systems",
+                  "Power Systems Protection",
                   "Multiple Electives",
                   "Multiple Electives",
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg (ET)",
+                branch_name: "Electronics & Telecommunication Engg",
                 subjects: [
                   "Embedded Systems",
                   "Microwave Theory and Techniques",
@@ -422,7 +421,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg (KS)",
+                branch_name: "Computer Science & Engg",
                 subjects: [
                   "Object Oriented Analysis & Design",
                   "Professional Ethics & Management",
@@ -431,7 +430,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Information Technology (IT)",
+                branch_name: "Information Technology",
                 subjects: [
                   "Object Oriented Analysis & Design",
                   "Professional Ethics & Management",
@@ -440,12 +439,12 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Artificial Intelligence & Data Science (AD)",
+                branch_name: "Artificial Intelligence & Data Science",
                 subjects: [
                   "Data Modeling & Visualization",
                   "Ethics in Data Science",
                   "Cognitive Technology",
-                  "Electives: Virtual & Augmented Reality / Wireless Sensor Networks / Predictive Analytics",
+                  "Electives: Virtual & Augmented Reality",
                 ],
               },
             ],
@@ -454,6 +453,13 @@ export default function ContributePage() {
       },
     ],
   };
+
+  // Helper to sanitize select option values (replace spaces with underscores)
+  const sanitizeValue = (str: string) =>
+    str
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/^_+|_+$/g, "");
 
   // Helper functions to get data based on selections
   const getAvailablePrograms = () => {
@@ -491,27 +497,55 @@ export default function ContributePage() {
     );
     if (!selectedSemester) return [];
     const selectedBranch = selectedSemester.branches.find(
-      (b) => b.branch_name === branch
+      (b) => sanitizeValue(b.branch_name) === branch
     );
     return selectedBranch ? selectedBranch.subjects : [];
   };
 
-  const handleUpload = () => {
-    if (uploadCode === "UPLOAD123") {
+  const handleUpload = async () => {
+    if (uploading) return;
+    if (uploadCode) {
       const baseFieldsFilled = semester && branch && subject && paperType;
       const solveFieldsFilled =
         paperType !== "solve-question-paper" || (solveType && unitOrYear);
 
       if (baseFieldsFilled && solveFieldsFilled) {
-        toast.success("Information submitted successfully! +10 points added.");
-        setUploadCode("");
-        setSemester("");
-        setBranch("");
-        setSubject("");
-        setSubjectName("");
-        setPaperType("");
-        setSolveType("");
-        setUnitOrYear("");
+        setUploading(true);
+        // Prepare data for API
+        const data = {
+          code: uploadCode,
+          metadata: {
+            semester,
+            branch,
+            subject,
+            paperType,
+            solveType,
+            unitOrYear,
+          },
+        };
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          if (!res.ok) throw new Error("API error");
+
+          toast.success(
+            "Information submitted successfully! +10 points added."
+          );
+          setUploadCode("");
+          setSemester("");
+          setBranch("");
+          setSubject("");
+          setPaperType("");
+          setSolveType("");
+          setUnitOrYear("");
+        } catch (err) {
+          toast.error("Failed to submit. Please try again.");
+        } finally {
+          setUploading(false);
+        }
       } else {
         toast.error("Please fill all required fields.");
       }
@@ -574,9 +608,7 @@ export default function ContributePage() {
                     <SelectTrigger className="bg-gray-900 border-gray-600 text-white [&[data-state=open]]:border-blue-500">
                       <SelectValue placeholder="Select semester">
                         <span className="truncate">
-                          {semester
-                            ? `Semester ${semester}`
-                            : "Select semester"}
+                          {semester ? `${semester}` : "Select semester"}
                         </span>
                       </SelectValue>
                     </SelectTrigger>
@@ -588,7 +620,7 @@ export default function ContributePage() {
                           className="text-white hover:bg-gray-800 focus:bg-gray-800"
                         >
                           <span className="truncate">
-                            Semester {s.semester_number}
+                            {s.semester_number.replace(/_/g, " ")}
                           </span>
                         </SelectItem>
                       ))}
@@ -619,17 +651,20 @@ export default function ContributePage() {
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-600 text-white max-w-[500px]">
-                      {getAvailableBranches().map((b) => (
-                        <SelectItem
-                          key={b.branch_name}
-                          value={b.branch_name}
-                          className="text-white hover:bg-gray-800 focus:bg-gray-800"
-                        >
-                          <span className="truncate" title={b.branch_name}>
-                            {b.branch_name}
-                          </span>
-                        </SelectItem>
-                      ))}
+                      {getAvailableBranches().map((b) => {
+                        const value = sanitizeValue(b.branch_name);
+                        return (
+                          <SelectItem
+                            key={b.branch_name}
+                            value={value}
+                            className="text-white hover:bg-gray-800 focus:bg-gray-800"
+                          >
+                            <span className="truncate" title={b.branch_name}>
+                              {b.branch_name}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -648,22 +683,31 @@ export default function ContributePage() {
                     >
                       <SelectValue placeholder="Select subject">
                         <span className="truncate">
-                          {subject || "Select subject"}
+                          {(() => {
+                            if (!subject) return "Select subject";
+                            const original = getAvailableSubjects().find(
+                              (s) => sanitizeValue(s) === subject
+                            );
+                            return original || subject;
+                          })()}
                         </span>
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-gray-900 border-gray-600 text-white max-w-[600px]">
-                      {getAvailableSubjects().map((s, index) => (
-                        <SelectItem
-                          key={`${s}-${index}`}
-                          value={s}
-                          className="text-white hover:bg-gray-800 focus:bg-gray-800"
-                        >
-                          <span className="truncate" title={s}>
-                            {s}
-                          </span>
-                        </SelectItem>
-                      ))}
+                      {getAvailableSubjects().map((s, index) => {
+                        const value = sanitizeValue(s);
+                        return (
+                          <SelectItem
+                            key={`${s}-${index}`}
+                            value={value}
+                            className="text-white hover:bg-gray-800 focus:bg-gray-800"
+                          >
+                            <span className="truncate" title={s}>
+                              {s}
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -810,20 +854,32 @@ export default function ContributePage() {
                       <Select value={unitOrYear} onValueChange={setUnitOrYear}>
                         <SelectTrigger className="bg-gray-900 border-gray-600 text-white [&[data-state=open]]:border-blue-500">
                           <SelectValue
-                            placeholder="Select year"
-                            className="text-white"
+                          placeholder="Select year"
+                          className="text-white"
                           />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-900 border-gray-600 text-white max-w-[200px]">
                           <SelectItem
-                            value="summer-23"
-                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                          value="summer-22"
+                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
-                            <span className="truncate">Summer 2023</span>
+                          <span className="truncate">Summer 2022</span>
                           </SelectItem>
                           <SelectItem
-                            value="winter-23"
-                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                          value="winter-22"
+                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                          >
+                          <span className="truncate">Winter 2022</span>
+                          </SelectItem>
+                          <SelectItem
+                          value="summer-23"
+                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                          >
+                          <span className="truncate">Summer 2023</span>
+                          </SelectItem>
+                          <SelectItem
+                          value="winter-23"
+                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
                             <span className="truncate">Winter 2023</span>
                           </SelectItem>
@@ -854,9 +910,13 @@ export default function ContributePage() {
 
               <Button
                 onClick={handleUpload}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+                disabled={uploading}
               >
-                Submit Information (+10 points)
+                {uploading ? (
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-blue-500 rounded-full animate-spin" />
+                ) : null}
+                {uploading ? "Uploading..." : "Submit Information (+10 points)"}
               </Button>
             </CardContent>
           </Card>

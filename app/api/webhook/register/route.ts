@@ -68,7 +68,6 @@ export async function POST(req: Request) {
         console.error("Error inserting profile:", error);
         return new Response("Error processing webhook event", { status: 500 });
       }
-      console.log("Profile created:", data);
 
     } catch (error) {
       console.error("Error handling user.created event:", error);

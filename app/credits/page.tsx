@@ -12,7 +12,9 @@ import {
   Copy,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useCredits } from "@/components/credits-context";
 
 // Package definition moved from payment page
 interface PackageInfo {
@@ -48,8 +50,15 @@ const UPI_NAME = process.env.NEXT_PUBLIC_UPI_NAME || "Mahesh Chopade"; // receiv
 
 export default function CreditsPage() {
   const searchParams = useSearchParams();
+  const { user, isSignedIn, isLoaded } = useUser();
 
-  const [userPoints, setUserPoints] = useState(0);
+  // Use shared credits context
+  const {
+    credits: userCredits,
+    refreshCredits,
+    loading: creditsLoading,
+    error: creditsError,
+  } = useCredits();
   const [paymentHistory, setPaymentHistory] = useState<
     {
       id: number;
@@ -74,46 +83,20 @@ export default function CreditsPage() {
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrObjectUrl, setQrObjectUrl] = useState<string | null>(null);
   const [qrReloadKey, setQrReloadKey] = useState(0);
+  // Local credits loading/error removed in favor of context values
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
-  // Load points & history
+  // Credits fetching now handled centrally by context (initial + realtime)
+  const handleManualCreditsSync = () => {
+    if (!isSignedIn || creditsLoading) return;
+    refreshCredits({ force: true }).then(() => {
+      toast.success("Credits synced");
+    });
+  };
+
+  // Handle deep link preselection only (history purely server sourced)
   useEffect(() => {
-    const savedPoints = localStorage.getItem("userPoints");
-    if (savedPoints) setUserPoints(parseInt(savedPoints));
-    const savedHistory = localStorage.getItem("paymentHistory");
-    if (savedHistory) {
-      try {
-        setPaymentHistory(JSON.parse(savedHistory));
-      } catch {}
-    } else {
-      // seed (optional) existing example history
-      setPaymentHistory([
-        {
-          id: 1,
-          date: "2024-08-07",
-          credits: 50,
-          amount: 20,
-          status: "completed",
-          time: "14:30",
-        },
-        {
-          id: 2,
-          date: "2024-08-05",
-          credits: 20,
-          amount: 10,
-          status: "completed",
-          time: "09:15",
-        },
-        {
-          id: 3,
-          date: "2024-08-03",
-          credits: 120,
-          amount: 40,
-          status: "completed",
-          time: "16:45",
-        },
-      ]);
-    }
-    // Preselect via query params (deep link)
     const qp = searchParams?.get("pkg");
     const qCredits = searchParams?.get("credits");
     const qPrice = searchParams?.get("price");
@@ -123,13 +106,88 @@ export default function CreditsPage() {
     }
   }, [searchParams]);
 
-  // Persist points & history
+  // Fetch payment history from server once user is authenticated
   useEffect(() => {
-    localStorage.setItem("userPoints", userPoints.toString());
-  }, [userPoints]);
-  useEffect(() => {
-    localStorage.setItem("paymentHistory", JSON.stringify(paymentHistory));
-  }, [paymentHistory]);
+    if (!isLoaded || !isSignedIn) return;
+    let abort = false;
+    (async () => {
+      setHistoryLoading(true);
+      setHistoryError(null);
+      try {
+        const res = await fetch("/api/paymentHistory", { method: "POST" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (abort) return;
+        if (Array.isArray(data)) {
+          const mapped = data.map((row: any) => {
+            const created = row.created_at
+              ? new Date(row.created_at)
+              : new Date();
+            return {
+              id: row.id,
+              date: created.toISOString().slice(0, 10),
+              credits: row.credits ?? 0,
+              amount: row.amount ?? 0,
+              status: row.status || "pending",
+              time: created.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            } as const;
+          });
+          setPaymentHistory(mapped);
+        }
+      } catch (e: any) {
+        if (abort) return;
+        console.error("Fetch payment history failed", e);
+        setHistoryError(e.message || "Failed to load history");
+      } finally {
+        if (!abort) setHistoryLoading(false);
+      }
+    })();
+    return () => {
+      abort = true;
+    };
+  }, [isLoaded, isSignedIn]);
+
+  const refreshHistory = async () => {
+    if (!isSignedIn || historyLoading) return;
+    setHistoryLoading(true);
+    setHistoryError(null);
+    try {
+      const res = await fetch("/api/paymentHistory", { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const mapped = data.map((row: any) => {
+          const created = row.created_at
+            ? new Date(row.created_at)
+            : new Date();
+          return {
+            id: row.id,
+            date: created.toISOString().slice(0, 10),
+            credits: row.credits ?? 0,
+            amount: row.amount ?? 0,
+            status: row.status || "pending",
+            time: created.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          } as const;
+        });
+        setPaymentHistory(mapped);
+        toast.success("History synced");
+      }
+    } catch (e: any) {
+      console.error("Refresh history failed", e);
+      setHistoryError(e.message || "Failed to refresh history");
+      toast.error("Failed to refresh history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // (Removed localStorage persistence for history to keep single source of truth on server)
 
   const selectPackage = (pkg: PackageInfo) => {
     if (processing) return;
@@ -202,35 +260,70 @@ export default function CreditsPage() {
     if (selectedPackage) setQrLoading(true);
   }, [selectedPackage]);
 
-  const confirmPurchase = () => {
+  const confirmPurchase = async () => {
     if (!selectedPackage || processing || success) return;
     if (!hasScanned) {
       toast.error("Please scan & pay the QR first, then click Confirm Paid.");
       return;
     }
+    if (!isSignedIn) {
+      toast.error("Please sign in to submit a payment request.");
+      return;
+    }
     setProcessing(true);
-    setTimeout(() => {
-      const newPoints = userPoints + selectedPackage.credits;
-      setUserPoints(newPoints);
-      const current = new Date();
-      const newEntry = {
-        id: Date.now(),
-        date: current.toISOString().slice(0, 10),
-        credits: selectedPackage.credits,
+    try {
+      const paymentID = (refNumber || "TEMP-" + Date.now()).trim();
+      // screenshotData is a data URI (valid URL). If absent send empty string so API converts to undefined.
+      const body = {
+        userId: user?.id,
+        name: user?.fullName || user?.username || "User",
+        email: user?.primaryEmailAddress?.emailAddress,
         amount: selectedPackage.price,
-        status: "completed",
-        time: current.toLocaleTimeString([], {
+        credits: selectedPackage.credits,
+        paymentID,
+        imgurl: screenshotData || "",
+      };
+      const res = await fetch("/api/paymentRequest/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Request failed");
+      }
+      const json = await res.json();
+      const data = json.data as {
+        id: number;
+        amount: number;
+        credits: number;
+        status: string; // pending
+        created_at: string;
+      };
+      // Don't immediately add credits (status pending). Only append history entry.
+      const created = new Date(data.created_at);
+      const newEntry = {
+        id: data.id,
+        date: created.toISOString().slice(0, 10),
+        credits: data.credits,
+        amount: data.amount,
+        status: data.status,
+        time: created.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
       };
       setPaymentHistory((prev) => [newEntry, ...prev]);
-      setProcessing(false);
       setSuccess(true);
-      toast.success(
-        `Purchased ${selectedPackage.credits} credits for ₹${selectedPackage.price}`
-      );
-    }, 1400);
+      toast.success("Payment request submitted. Awaiting approval.");
+      // Refresh server history to reflect canonical state
+      refreshHistory();
+    } catch (e: any) {
+      console.error("confirmPurchase error", e);
+      toast.error(e.message || "Failed to submit payment request");
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -253,7 +346,7 @@ export default function CreditsPage() {
             </div>
             <div>
               <h1 className="credits-title text-lg font-semibold tracking-tight text-slate-100">
-                Your Mighty Credits
+                Your Shiny Credits
               </h1>
             </div>
           </div>
@@ -281,17 +374,39 @@ export default function CreditsPage() {
               {/* Credits */}
               <div className="rounded-2xl bg-slate-900/60 border border-slate-600/40 p-5 flex flex-col items-start">
                 <div className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent">
-                  {userPoints}
+                  {userCredits}
                 </div>
                 <div className="text-[10px] uppercase tracking-wide text-slate-400 mt-1">
-                  Hoarded Points
+                  Current Hoard
+                </div>
+                <div className="mt-3 flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleManualCreditsSync}
+                    disabled={!isSignedIn || creditsLoading}
+                    className={`px-2 py-0.5 rounded-md border text-[10px] font-medium transition ${
+                      creditsLoading
+                        ? "border-slate-600/50 text-slate-500 bg-slate-800/50"
+                        : "border-slate-600/50 text-slate-300 hover:border-emerald-400/60 hover:text-emerald-300"
+                    }`}
+                  >
+                    {creditsLoading ? "Syncing..." : "Sync"}
+                  </button>
+                  {creditsError && (
+                    <span
+                      className="text-[9px] text-rose-400/80 max-w-[140px] truncate"
+                      title={creditsError}
+                    >
+                      {creditsError}
+                    </span>
+                  )}
                 </div>
               </div>
 
               {/* Pricing */}
               <div>
                 <h2 className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase mb-3">
-                  Grab More Credits
+                  Feed The Meter
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {packages.map((pkg) => {
@@ -345,7 +460,7 @@ export default function CreditsPage() {
               <div className="flex justify-between text-slate-400">
                 <span>Balance</span>
                 <span className="font-semibold text-slate-200">
-                  {userPoints} pts
+                  {userCredits} cr
                 </span>
               </div>
               <div className="flex justify-between text-slate-400">
@@ -362,7 +477,7 @@ export default function CreditsPage() {
               </div>
               <div className="h-px bg-slate-600/40 my-1" />
               <div className="flex justify-between font-semibold text-slate-300">
-                <span>Total Tribute</span>
+                <span>Total Tribute (INR)</span>
                 <span className="text-slate-100">
                   ₹{selectedPackage ? selectedPackage.price : 0}
                 </span>
@@ -573,13 +688,35 @@ export default function CreditsPage() {
           {/* HISTORY (moved to bottom; spans full width) */}
           <div className="col-span-full order-3 lg:order-3">
             <h2 className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase mb-3">
-              Recent Transactions (a.k.a. Loot Log)
+              Past Financial Adventures
             </h2>
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                type="button"
+                onClick={refreshHistory}
+                disabled={!isSignedIn || historyLoading}
+                className={`px-2 py-0.5 rounded-md border text-[10px] font-medium transition ${
+                  historyLoading
+                    ? "border-slate-600/50 text-slate-500 bg-slate-800/50"
+                    : "border-slate-600/50 text-slate-300 hover:border-indigo-400/60 hover:text-indigo-300"
+                }`}
+              >
+                {historyLoading ? "Syncing..." : "Sync History"}
+              </button>
+              {historyError && (
+                <span
+                  className="text-[9px] text-rose-400/80 max-w-[160px] truncate"
+                  title={historyError}
+                >
+                  {historyError}
+                </span>
+              )}
+            </div>
             <div className="flex flex-col gap-2.5">
               {paymentHistory.length > 0 ? (
-                paymentHistory.slice(0, 8).map((payment) => (
+                paymentHistory.slice(0, 8).map((payment, idx) => (
                   <div
-                    key={payment.id}
+                    key={`pay-${payment.id}-${payment.date}-${idx}`}
                     className="flex items-center gap-3 rounded-xl border border-slate-600/40 bg-slate-800/40 p-2.5"
                   >
                     <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
@@ -597,8 +734,19 @@ export default function CreditsPage() {
                       <div className="flex items-center gap-2 text-[10px] tracking-wide text-slate-500 mt-0.5">
                         <span>{formatDate(payment.date)}</span>
                         <span>{payment.time}</span>
-                        <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] font-semibold">
-                          Done
+                        <span
+                          className={`hidden sm:inline-block px-1.5 py-0.5 rounded-full border text-[9px] font-semibold ${
+                            payment.status === "completed"
+                              ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                              : payment.status === "pending"
+                              ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                              : "bg-slate-600/20 text-slate-400 border-slate-500/40"
+                          }`}
+                        >
+                          {payment.status === "completed"
+                            ? "Done"
+                            : payment.status.charAt(0).toUpperCase() +
+                              payment.status.slice(1)}
                         </span>
                       </div>
                     </div>
@@ -607,7 +755,11 @@ export default function CreditsPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 border border-dashed border-slate-600/50 rounded-xl text-slate-500 text-xs">
                   <Clock className="w-7 h-7 mb-1.5 opacity-40" />
-                  <p>No payment history yet</p>
+                  <p>
+                    {historyLoading
+                      ? "Loading history..."
+                      : "No payment history yet"}
+                  </p>
                 </div>
               )}
             </div>
