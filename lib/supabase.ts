@@ -13,5 +13,5 @@ export const supabase = (() => {
   if (typeof window !== "undefined") {
     throw new Error("supabase (admin) client should only be used server-side");
   }
-  return createClient('SUPABASE_URL', SERVICE_ROLE_KEY);
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 })();
