@@ -34,7 +34,6 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 
 ## Add your environment variables here
-# Example:
 ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_cmVzb2x2ZWQtc3dhbi02Ni5jbGVyay5hY2NvdW50cy5kZXYk
 ENV CLERK_SECRET_KEY=sk_test_bnkxf4TssgBRI8BF0CfWtARrdCfvzV386rvvpy7HeL
 ENV NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
