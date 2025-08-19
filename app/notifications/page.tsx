@@ -65,6 +65,11 @@ export default function NotificationsPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto text-gray-200 h-full flex flex-col">
+      <div className="mb-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300 font-semibold flex items-center gap-2">
+        <AlertTriangle className="w-5 h-5 text-yellow-400" />
+        This notifications page is under development. Features and design may
+        change soon.
+      </div>
       <div className="mb-8 flex items-center gap-3">
         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-600/30 to-purple-600/30 border border-indigo-500/40">
           <Bell className="w-6 h-6 text-indigo-300" />
@@ -124,13 +129,10 @@ export default function NotificationsPage() {
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-[11px] text-gray-500">
                     <time dateTime={n.createdAt}>
-                      {new Date(n.createdAt).toLocaleString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                        day: "2-digit",
-                        month: "short",
-                      })}
+                      {new Date(n.createdAt)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
                     </time>
                   </div>
                 </div>
@@ -173,13 +175,10 @@ export default function NotificationsPage() {
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-[11px] text-gray-500">
                     <time dateTime={n.createdAt}>
-                      {new Date(n.createdAt).toLocaleString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                        day: "2-digit",
-                        month: "short",
-                      })}
+                      {new Date(n.createdAt)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
                     </time>
                   </div>
                 </div>

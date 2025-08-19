@@ -140,7 +140,7 @@ export default function ContributePage() {
             semester_number: "Semester_V",
             branches: [
               {
-                branch_name: "Civil Engg",
+                branch_name: "Civil Engineering",
                 subjects: [
                   "Design of Reinforced & Prestressed Concrete Structures",
                   "Surveying & Geomatics",
@@ -150,7 +150,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg",
+                branch_name: "Mechanical Engineering",
                 subjects: [
                   "Heat Transfer",
                   "Metrology & Quality Control",
@@ -160,7 +160,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg",
+                branch_name: "Electrical Engineering",
                 subjects: [
                   "Control Systems",
                   "Microprocessor & Microcontroller",
@@ -170,7 +170,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg",
+                branch_name: "Electronics & Telecommunication Engineering",
                 subjects: [
                   "Microcontroller",
                   "Control System",
@@ -180,7 +180,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg",
+                branch_name: "Computer Science and Engineering",
                 subjects: [
                   "Database Management Systems",
                   "Compiler Design",
@@ -235,7 +235,7 @@ export default function ContributePage() {
             semester_number: "Semester_VI",
             branches: [
               {
-                branch_name: "Civil Engg",
+                branch_name: "Civil Engineering",
                 subjects: [
                   "Design of Steel Structures",
                   "Environmental Engineering - 1",
@@ -245,7 +245,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg",
+                branch_name: "Mechanical Engineering",
                 subjects: [
                   "Design of Machine Elements",
                   "Dynamics of Machines",
@@ -255,7 +255,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg",
+                branch_name: "Electrical Engineering",
                 subjects: [
                   "Power Electronics",
                   "Power Systems II / Electrical Energy Distribution & Utilization",
@@ -265,7 +265,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg",
+                branch_name: "Electronics & Telecommunication Engineering",
                 subjects: [
                   "Communication Network",
                   "Computer Architecture",
@@ -275,7 +275,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg",
+                branch_name: "Computer Science & Engineering",
                 subjects: [
                   "Software Engineering",
                   "Design & Analysis of Algorithms",
@@ -310,7 +310,7 @@ export default function ContributePage() {
             semester_number: "Semester_VII",
             branches: [
               {
-                branch_name: "Civil Engg",
+                branch_name: "Civil Engineering",
                 subjects: [
                   "Structural Analysis II",
                   "Geotechnical Engineering II",
@@ -320,7 +320,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg",
+                branch_name: "Mechanical Engineering",
                 subjects: [
                   "Mechatronics",
                   "Productivity Techniques",
@@ -330,7 +330,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg",
+                branch_name: "Electrical Engineering",
                 subjects: [
                   "Electrical Energy Distribution & Utilization",
                   "Digital Signal Processing",
@@ -340,7 +340,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg",
+                branch_name: "Electronics & Telecommunication Engineering",
                 subjects: [
                   "Cryptography & Network security",
                   "Digital Image and Video Processing",
@@ -350,7 +350,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg",
+                branch_name: "Computer Science and Engineering",
                 subjects: [
                   "Social Science & Engineering Economics",
                   "Computer Graphics",
@@ -385,7 +385,7 @@ export default function ContributePage() {
             semester_number: "Semester_VIII",
             branches: [
               {
-                branch_name: "Civil Engg",
+                branch_name: "Civil Engineering",
                 subjects: [
                   "Construction Project Management",
                   "Construction Economics & Estimating - Costing",
@@ -394,7 +394,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Mechanical Engg",
+                branch_name: "Mechanical Engineering",
                 subjects: [
                   "Operation Research Techniques",
                   "I.C. Engines",
@@ -403,7 +403,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electrical Engg",
+                branch_name: "Electrical Engineering",
                 subjects: [
                   "Embedded Systems",
                   "Power Systems Protection",
@@ -412,7 +412,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Electronics & Telecommunication Engg",
+                branch_name: "Electronics & Telecommunication Engineering",
                 subjects: [
                   "Embedded Systems",
                   "Microwave Theory and Techniques",
@@ -421,7 +421,7 @@ export default function ContributePage() {
                 ],
               },
               {
-                branch_name: "Computer Science & Engg",
+                branch_name: "Computer Science and Engineering",
                 subjects: [
                   "Object Oriented Analysis & Design",
                   "Professional Ethics & Management",
@@ -854,32 +854,32 @@ export default function ContributePage() {
                       <Select value={unitOrYear} onValueChange={setUnitOrYear}>
                         <SelectTrigger className="bg-gray-900 border-gray-600 text-white [&[data-state=open]]:border-blue-500">
                           <SelectValue
-                          placeholder="Select year"
-                          className="text-white"
+                            placeholder="Select year"
+                            className="text-white"
                           />
                         </SelectTrigger>
                         <SelectContent className="bg-gray-900 border-gray-600 text-white max-w-[200px]">
                           <SelectItem
-                          value="summer-22"
-                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                            value="summer-22"
+                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
-                          <span className="truncate">Summer 2022</span>
+                            <span className="truncate">Summer 2022</span>
                           </SelectItem>
                           <SelectItem
-                          value="winter-22"
-                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                            value="winter-22"
+                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
-                          <span className="truncate">Winter 2022</span>
+                            <span className="truncate">Winter 2022</span>
                           </SelectItem>
                           <SelectItem
-                          value="summer-23"
-                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                            value="summer-23"
+                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
-                          <span className="truncate">Summer 2023</span>
+                            <span className="truncate">Summer 2023</span>
                           </SelectItem>
                           <SelectItem
-                          value="winter-23"
-                          className="text-white hover:bg-gray-800 focus:bg-gray-100"
+                            value="winter-23"
+                            className="text-white hover:bg-gray-800 focus:bg-gray-100"
                           >
                             <span className="truncate">Winter 2023</span>
                           </SelectItem>

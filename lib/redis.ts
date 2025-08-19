@@ -1,8 +1,8 @@
-import IORedis from "ioredis";
+import Redis from "ioredis";
+import 'dotenv/config';
 
-// BullMQ requires maxRetriesPerRequest to be null for blocking commands used by Workers.
-const redis = new IORedis(process.env.REDIS_URL || "redis://localhost:6379", {
+
+const redis = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
 });
-
 export default redis;

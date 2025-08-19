@@ -34,26 +34,22 @@ async function ProcessPdf(data: ProcessJob) {
     if (result.success) {
       let outputPath = "";
       if (result.output) {
-        outputPath = metadataToPath(JSON.parse(result.output));
+        console.log("OCR Result:", result.output);
+
+        outputPath = metadataToPath(result.output);
       }
 
-      const response = await processPages(data.filepath, result.output, 'doc-repair');
+      const response = await processPages(
+        data.filepath,
+        result.output,
+        outputPath
+      );
 
       if (response.success) {
-        const res = await uploadPDF(response.trimmed, outputPath, data.metadata);
-        if (res.success) {
-          try {
-            await fs.unlink(data.filepath);
-            if (response.trimmed && response.trimmed !== data.filepath) {
-              await fs.unlink(response.trimmed);
-            }
-            console.log("Source and trimmed files deleted successfully.");
-          } catch (err) {
-            console.error("Error deleting files:", err);
-          }
-        } else {
-          console.error("Error uploading PDF:", res);
-        }
+        console.log(data.filepath);
+        
+        await fs.unlink(data.filepath);
+        console.log("PDF processed successfully:", response);
       } else {
         console.error("Error processing pages:", response);
       }
@@ -67,5 +63,6 @@ async function ProcessPdf(data: ProcessJob) {
 
 async function uploadFile(data: ProcessJob) {
   const res = await uploadPDF(data.filepath, data.destination, data.metadata);
+  await fs.unlink(data.filepath);
   console.log(res);
 }

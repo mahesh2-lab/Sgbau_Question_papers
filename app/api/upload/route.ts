@@ -91,7 +91,7 @@ export async function POST(req: Request) {
       success: true,
       message: "Upload successful",
       metadata,
-    },
+    },  
     { status: 200 }
   );
 }

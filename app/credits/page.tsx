@@ -15,6 +15,7 @@ import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useCredits } from "@/components/credits-context";
+import { uploadImage } from "@/lib/uploadimage";
 
 // Package definition moved from payment page
 interface PackageInfo {
@@ -83,9 +84,9 @@ export default function CreditsPage() {
   const [qrError, setQrError] = useState<string | null>(null);
   const [qrObjectUrl, setQrObjectUrl] = useState<string | null>(null);
   const [qrReloadKey, setQrReloadKey] = useState(0);
-  // Local credits loading/error removed in favor of context values
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
 
   // Credits fetching now handled centrally by context (initial + realtime)
   const handleManualCreditsSync = () => {
@@ -577,22 +578,28 @@ export default function CreditsPage() {
                     {!screenshotData ? (
                       <label className="flex flex-col items-center justify-center gap-0 cursor-pointer border-2 border-dashed border-slate-600/50 hover:border-slate-500/60 rounded-md p-1.5 text-[9px] text-slate-400 transition h-11 leading-none">
                         <span className="text-slate-300 font-medium text-[15px]">
-                          Drop Proof
+                          {imageUploading ? (
+                            <span className="flex items-center gap-1">
+                              <span className="inline-block w-4 h-4 border-2 border-slate-600 border-t-emerald-400 rounded-full animate-spin" />
+                              Uploading...
+                            </span>
+                          ) : (
+                            "Drop Proof"
+                          )}
                         </span>
                         <input
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(
+                          onChange={async (
                             e: React.ChangeEvent<HTMLInputElement>
                           ) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              setScreenshotData(ev.target?.result as string);
-                            };
-                            reader.readAsDataURL(file);
+                            setImageUploading(true);
+                            const url = await uploadImage(file);
+                            if (url) setScreenshotData(url);
+                            setImageUploading(false);
                           }}
                         />
                       </label>

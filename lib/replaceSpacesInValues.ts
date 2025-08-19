@@ -13,7 +13,7 @@ export function replaceSpacesInValues(obj: any): any {
 
 
 
-export function metadataToPath(metadata: Record<string, string>) {
+export function metadataToPath(metadata: any) {
   if (!metadata) return "";
 
   Object.entries(metadata).forEach(([key, value]) => {
