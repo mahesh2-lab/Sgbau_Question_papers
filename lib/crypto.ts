@@ -12,7 +12,7 @@ export function decryptText(encryptedText: string, salt: string) {
 }
 
 const text =
-  "https://migration-contents.classx.co.in/production/single/akmxm/d871a18f-97ce-4854-a872-270a777932db.pdf";
+  "https://appx-content-v2.classx.co.in/paid_course4/2025-04-08-0.870815859744646.pdf";
 const salt = "maheshchopade133";
 
 
