@@ -16,6 +16,7 @@ import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useCredits } from "@/components/credits-context";
 import { uploadImage } from "@/lib/uploadimage";
+import { Suspense } from "react";
 
 // Package definition moved from payment page
 interface PackageInfo {
@@ -337,11 +338,12 @@ export default function CreditsPage() {
   };
 
   return (
-    <div className="premium-credits-page merged-payment text-slate-200">
-      <div className=" max-w-[1500px] mx-auto px-4 md:px-6 pb-12">
-        {/* Header */}
-        <div className="credits-header flex items-center justify-between mb-6 flex-wrap gap-4">
-          <div className="flex items-center gap-3 min-w-[240px]">
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="premium-credits-page merged-payment text-slate-200">
+        <div className=" max-w-[1500px] mx-auto px-4 md:px-6 pb-12">
+          {/* Header */}
+          <div className="credits-header flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div className="flex items-center gap-3 min-w-[240px]">
             <div className="credits-icon shrink-0">
               <CreditCard className="w-6 h-6 text-white" />
             </div>
@@ -774,5 +776,6 @@ export default function CreditsPage() {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 }
