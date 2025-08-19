@@ -70,7 +70,6 @@ substitutions:
   _SERVICE_NAME: 'sgbau'
   _REGION: 'us-central1'
   _REPO: 'worker'
-  _VPC_CONNECTOR: 'your-vpc-connector-name'
   # Default values for public variables
   _NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_cmVzb2x2ZWQtc3dhbi02Ni5jbGVyay5hY2NvdW50cy5kZXYk'
   _NEXT_PUBLIC_CLERK_SIGN_IN_URL: '/sign-in'
@@ -83,3 +82,5 @@ substitutions:
 # Specify the image to be pushed
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE_NAME}:$COMMIT_SHA'
+
+
