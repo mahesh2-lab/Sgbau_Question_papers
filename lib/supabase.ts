@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import "dotenv/config";
 
 // IMPORTANT:
 // Never expose the service role key to the browser. Only import `supabaseAdmin`
@@ -7,8 +8,6 @@ import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!; // URL can be public
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!; // MUST stay server-side
-
-const SUPABASE_PUBLIC_ANON_KEY = process.env.SUPABASE_PUBLIC_ANON_KEY!; // Optional, for public client
 
 if (!SUPABASE_URL) {
   throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL env variable");
