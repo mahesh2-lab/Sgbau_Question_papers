@@ -5,7 +5,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerContext: .
     autoDeploy: true
-    envVars:
+   envVars:
       # Clerk
       - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
         sync: false
@@ -26,7 +26,7 @@ services:
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
 
-      # Next webhook
+      # Next Webhook Secret
       - key: NEXT_WEBHOOK_SECRET
         sync: false
 
@@ -34,7 +34,7 @@ services:
       - key: REDIS_URL
         sync: false
 
-      # GCP Bucket
+      # GCP Storage
       - key: GCP_PROJECT_ID
         sync: false
       - key: GCP_CLIENT_EMAIL
