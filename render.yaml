@@ -1,33 +1,53 @@
 services:
   - type: web
-    name: nextjs-app
+    name: my-nextjs-app
     env: docker
-    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
     envVars:
-      - key: SERVICE
-        value: web
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: redis-db
-          property: connectionString
-      - key: NEXT_PUBLIC_API_URL
-        value: https://nextjs-app.onrender.com
+      # Clerk
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL
+        sync: false
 
-  - type: worker
-    name: redis-worker
-    env: docker
-    plan: free
-    envVars:
-      - key: SERVICE
-        value: worker
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: redis-db
-          property: connectionString
+      # Supabase
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
 
-  - type: redis
-    name: redis-db
-    ipAllowList: []
-    plan: free
+      # Next webhook
+      - key: NEXT_WEBHOOK_SECRET
+        sync: false
+
+      # Redis
+      - key: REDIS_URL
+        sync: false
+
+      # GCP Bucket
+      - key: GCP_PROJECT_ID
+        sync: false
+      - key: GCP_CLIENT_EMAIL
+        sync: false
+      - key: GCP_PRIVATE_KEY
+        sync: false
+      - key: GCS_BUCKET
+        sync: false
+
+      # Cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
