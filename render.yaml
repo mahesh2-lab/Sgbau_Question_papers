@@ -1,23 +1,29 @@
 services:
   - type: web
-    name: sgbau
+    name: nextjs-app
     env: docker
     plan: free
     envVars:
+      - key: SERVICE
+        value: web
       - key: REDIS_URL
         fromService:
+          type: redis
           name: redis-db
           property: connectionString
+      - key: NEXT_PUBLIC_API_URL
+        value: https://nextjs-app.onrender.com
 
   - type: worker
     name: redis-worker
     env: docker
     plan: free
-    buildCommand: pnpm install && pnpm run build
-    startCommand: pnpm tsx worker/worker.ts
     envVars:
+      - key: SERVICE
+        value: worker
       - key: REDIS_URL
         fromService:
+          type: redis
           name: redis-db
           property: connectionString
 
