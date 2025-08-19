@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: sgbau
+    env: docker
+    plan: free
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: redis-db
+          property: connectionString
+
+  - type: worker
+    name: redis-worker
+    env: docker
+    plan: free
+    buildCommand: pnpm install && pnpm run build
+    startCommand: pnpm tsx worker/worker.ts
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: redis-db
+          property: connectionString
+
+  - type: redis
+    name: redis-db
+    ipAllowList: []
+    plan: free
