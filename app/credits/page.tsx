@@ -11,7 +11,6 @@ import {
   AlertCircle,
   Copy,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { useCredits } from "@/components/credits-context";
@@ -51,7 +50,6 @@ const UPI_ID = process.env.NEXT_PUBLIC_UPI_ID || "mahesh.chopade1@ybl"; // recei
 const UPI_NAME = process.env.NEXT_PUBLIC_UPI_NAME || "Mahesh Chopade"; // receiver name
 
 export default function CreditsPage() {
-  const searchParams = useSearchParams();
   const { user, isSignedIn, isLoaded } = useUser();
 
   // Use shared credits context
@@ -97,16 +95,7 @@ export default function CreditsPage() {
     });
   };
 
-  // Handle deep link preselection only (history purely server sourced)
-  useEffect(() => {
-    const qp = searchParams?.get("pkg");
-    const qCredits = searchParams?.get("credits");
-    const qPrice = searchParams?.get("price");
-    if (qp && qCredits && qPrice) {
-      const found = packages.find((p) => p.id === qp);
-      if (found) setSelectedPackage(found);
-    }
-  }, [searchParams]);
+
 
   // Fetch payment history from server once user is authenticated
   useEffect(() => {
