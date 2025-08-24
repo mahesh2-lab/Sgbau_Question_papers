@@ -32,14 +32,14 @@ const packages: PackageInfo[] = [
   {
     id: "premium",
     name: "Premium",
-    credits: 120,
+    credits: 100,
     price: 40,
     savings: "Save ₹20",
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    credits: 300,
+    credits: 250,
     price: 80,
     savings: "Save ₹70",
   },

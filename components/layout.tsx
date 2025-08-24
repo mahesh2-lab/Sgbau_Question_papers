@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import SidebarCredits from "./SidebarCredits";
 import { useRouter, usePathname } from "next/navigation";
-import '../app/globals.css';
+import "../app/globals.css";
 import {
   Home,
   Upload,
@@ -57,14 +57,16 @@ export default function Layout({ children }: LayoutProps) {
       icon: Upload,
       path: "/contribute",
     },
+    { id: "credits", label: "Credits", icon: CreditCard, path: "/credits" },
     {
       id: "notifications",
       label: "Notifications",
       icon: Bell,
       path: "/notifications",
     },
-    { id: "credits", label: "Credits", icon: CreditCard, path: "/credits" },
+
     { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
+   
   ];
 
   const toggleSidebar = (e?: React.MouseEvent) => {

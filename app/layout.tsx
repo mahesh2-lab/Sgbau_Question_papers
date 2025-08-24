@@ -8,13 +8,14 @@ import { dark, neobrutalism } from "@clerk/themes";
 import { CreditsProvider } from "@/components/credits-context";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://example.com"), // TODO: replace with real production origin
-  applicationName: "Smart File Manager",
+  metadataBase: new URL("http://study-material.hostmyidea.me/"),
+  applicationName: "StudyNest", 
   title: {
-    default: "SGBAU Engineering Study Material & Solved Question Papers PDF",
-    template: "%s | SGBAU Study Material",
+    default: "StudyNest - Collaborative Study Material Platform",
+    template: "%s | StudyNest",
   },
-  
+  description:
+    "A collaborative study material platform where students can contribute, buy, and access high-quality notes, books, and resources. Modern UI, fast delivery, and AI-powered recommendations tailored to each student’s needs.",
 };
 
 export default function RootLayout({

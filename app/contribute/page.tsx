@@ -529,8 +529,12 @@ export default function ContributePage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
           });
-          if (!res.ok) throw new Error("API error");
-
+          const result = await res.json();
+          if (!result.success) {
+            toast.error(result.error || "API error");
+            setUploading(false);
+            return;
+          }
           toast.success(
             "Information submitted successfully! +10 points added."
           );
@@ -541,8 +545,8 @@ export default function ContributePage() {
           setPaperType("");
           setSolveType("");
           setUnitOrYear("");
-        } catch (err) {
-          toast.error("Failed to submit. Please try again.");
+        } catch (err: any) {
+          toast.error(err?.message || "API error");
         } finally {
           setUploading(false);
         }
@@ -566,9 +570,79 @@ export default function ContributePage() {
 
       {/* 2-Column Layout */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Left Column - How it Works Section */}
+        {/* Left Column - How it Works Section (custom box) */}
         <div>
-          <HowItWorksSection />
+          <div className="bg-gradient-to-br from-blue-900 via-violet-900 to-pink-900 rounded-2xl shadow-lg p-8 text-white max-w-xl mx-auto">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <span className="inline-block bg-blue-600 rounded-full p-2">
+                <Upload className="w-6 h-6 text-white" />
+              </span>
+              How it Works
+            </h3>
+            <div className="mb-6">
+              <a
+                href="/how-to-contribute"
+                className="inline-block px-4 py-2 rounded-lg bg-gradient-to-br from-pink-500 to-violet-500 text-white font-semibold shadow hover:scale-105 transition text-sm"
+
+                rel="noopener noreferrer"
+              >
+                How to Contribute (Step-by-step Guide)
+              </a>
+            </div>
+            <ol className="space-y-6">
+              <li className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold text-lg shadow">
+                  1
+                </span>
+                <div>
+                  <span className="font-semibold">Get Upload Code:</span>
+                  <div className="text-sm text-gray-200">
+                    Use the code{" "}
+                    <span className="bg-gray-800 px-2 py-1 rounded">
+                      UPLOAD123
+                    </span>{" "}
+                    for demo, or request your own code from admin.
+                  </div>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500 flex items-center justify-center text-white font-bold text-lg shadow">
+                  2
+                </span>
+                <div>
+                  <span className="font-semibold">Fill Details:</span>
+                  <div className="text-sm text-gray-200">
+                    Select semester, branch, subject, and paper type. For solved
+                    papers, choose unit or year.
+                  </div>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg shadow">
+                  3
+                </span>
+                <div>
+                  <span className="font-semibold">Submit Information:</span>
+                  <div className="text-sm text-gray-200">
+                    Click the button to upload. Each valid PDF earns you{" "}
+                    <span className="font-bold text-pink-300">+10 points</span>.
+                  </div>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow">
+                  <span className="material-icons text-base">star</span>
+                </span>
+                <div>
+                  <span className="font-semibold">Track Your Points:</span>
+                  <div className="text-sm text-gray-200">
+                    Check your credits in the sidebar. Top contributors get
+                    special rewards!
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </div>
         </div>
 
         {/* Right Column - Upload Form */}
@@ -910,13 +984,29 @@ export default function ContributePage() {
 
               <Button
                 onClick={handleUpload}
-                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2 relative"
                 disabled={uploading}
               >
                 {uploading ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-blue-500 rounded-full animate-spin" />
+                  <span
+                    className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    <span
+                      className="block w-5 h-5 border-4 border-white border-t-blue-500 rounded-full animate-spin"
+                      style={{
+                        borderRightColor: "transparent",
+                        borderBottomColor: "transparent",
+                        borderLeftColor: "transparent",
+                      }}
+                    />
+                  </span>
                 ) : null}
-                {uploading ? "Uploading..." : "Submit Information (+10 points)"}
+                <span className={uploading ? "opacity-0" : ""}>
+                  {uploading
+                    ? "Uploading..."
+                    : "Submit Information (+10 points)"}
+                </span>
               </Button>
             </CardContent>
           </Card>
