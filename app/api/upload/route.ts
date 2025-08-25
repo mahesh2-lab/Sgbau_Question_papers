@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   }
 
   if (pages <= 1) {
-    await addCredit(2);
+    await addCredit(6);
 
     await myQueue.add("uploadPDF", {
       filepath: filePathResult.path,
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
   }
 
   if (pages < 10 && pages > 1) {
-    await addCredit(5);
+    await addCredit(16);
 
     await myQueue.add("uploadPDF", {
       filepath: filePathResult.path,
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
   }
 
   if (pages > 10) {
-    await addCredit(10);
+    await addCredit(40);
 
     await myQueue.add("processPdf", {
       filepath: filePathResult.path,

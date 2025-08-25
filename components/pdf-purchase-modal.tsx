@@ -30,7 +30,16 @@ export default function PdfPurchaseModal({
   userPoints,
   onPointsUpdate,
 }: PdfPurchaseModalProps) {
-  const CREDIT_COST = 5;
+  // Determine credit cost based on file name
+  const getCreditCost = (name: string | undefined | null) => {
+    if (!name) return 5;
+    const lower = name.toLowerCase();
+    if (lower.includes("syllabus")) return 3;
+    if (lower.includes("questionpaper") || lower.includes("question-paper")) return 8;
+    if (lower.includes("solvequestionpaper") || lower.includes("solve-question-paper")) return 20;
+    return 5;
+  };
+  const CREDIT_COST = getCreditCost(pdfFile?.name);
   const [isProcessing, setIsProcessing] = useState(false);
   const { credits, setCredits } = useCredits();
 
