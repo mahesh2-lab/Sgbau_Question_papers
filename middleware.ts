@@ -6,7 +6,8 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/api/webhook/register",
   "/api/files/getfiles",
-  "/notifications"
+  "/notifications",
+  "/api/notifications"
 
 ]);
 
