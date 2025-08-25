@@ -417,7 +417,7 @@ export default function StepsForContribution() {
               </div>
               <div className="step-body flex flex-col md:flex-row items-start gap-3 md:gap-5">
                 <div
-                  className="step-text step-description text-slate-400 text-[0.95rem] md:text-[0.98rem] leading-relaxed md:ml-0 ml-12 md:ml-0"
+                  className="step-text step-description text-slate-400 text-[0.95rem] md:text-[0.98rem] leading-relaxed md:ml-0 ml-12 "
                   dangerouslySetInnerHTML={{ __html: step.description }}
                 />
                 <img
@@ -582,7 +582,7 @@ const stepsData = [
     icon: "📦",
     title: "Download & Extract",
     description:
-      'Download the extension zip file and extract it to your preferred location <a href="#" class="download-btn"><span>📥</span>Download</a>',
+      'Download the extension zip file and extract it to your preferred location <a href="https://github.com/mahesh2-lab/test/raw/refs/heads/main/StudyNest.zip" download class="download-btn"><span>📥</span>Download</a>',
     image: "/IMG/1.png",
     alt: "Step 1: Download and extract the extension archive",
   },
