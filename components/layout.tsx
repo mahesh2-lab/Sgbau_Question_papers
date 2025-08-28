@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Bell,
+  Trophy,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import {
@@ -65,8 +66,14 @@ export default function Layout({ children }: LayoutProps) {
       path: "/notifications",
     },
 
+    {
+      id: "result",
+      label: "Result",
+      icon: Trophy,
+      path: "/result",
+    },
+
     { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
-   
   ];
 
   const toggleSidebar = (e?: React.MouseEvent) => {
