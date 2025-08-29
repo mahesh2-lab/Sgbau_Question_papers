@@ -159,24 +159,43 @@ export default function HomePage() {
   const Breadcrumb = () => {
     const breadcrumbs = getBreadcrumbs();
 
+    // Responsive: collapse breadcrumbs if too many on mobile
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+    let displayCrumbs = breadcrumbs;
+    if (isMobile && breadcrumbs.length > 3) {
+      displayCrumbs = [
+        breadcrumbs[0],
+        { name: "...", path: "..." },
+        breadcrumbs[breadcrumbs.length - 1],
+      ];
+    }
+
     return (
-      <div className="flex items-center space-x-3 text-lg font-semibold text-slate-500 mb-6">
-        <Home className="w-5 h-5 text-blue-500" />
-        {breadcrumbs.map((crumb, index) => (
-          <React.Fragment key={crumb.path}>
-            <button
-              onClick={() => navigateToFolder(crumb.path)}
-              className={`hover:text-blue-400 transition-colors ${
-                index === breadcrumbs.length - 1
-                  ? "text-slate-200 font-semibold"
-                  : "text-blue-400"
-              }`}
-              disabled={index === breadcrumbs.length - 1}
-            >
-              {crumb.path === "/" ? "Castle" : prettify(crumb.name)}
-            </button>
-            {index < breadcrumbs.length - 1 && (
-              <ChevronRight className="w-4 h-4 text-slate-600" />
+      <div
+        className="flex items-center space-x-2 mb-6 overflow-x-auto whitespace-nowrap"
+        style={{ fontSize: isMobile ? "0.95rem" : "1.125rem", fontWeight: 600 }}
+      >
+        <Home className="w-5 h-5 text-blue-500 shrink-0" />
+        {displayCrumbs.map((crumb, index) => (
+          <React.Fragment key={crumb.path + index}>
+            {crumb.name === "..." ? (
+              <span className="text-slate-400 px-1">...</span>
+            ) : (
+              <button
+                onClick={() => crumb.path !== "..." && navigateToFolder(crumb.path)}
+                className={`hover:text-blue-400 transition-colors ${
+                  index === displayCrumbs.length - 1
+                    ? "text-slate-200 font-semibold"
+                    : "text-blue-400"
+                } px-1`}
+                disabled={index === displayCrumbs.length - 1 || crumb.path === "..."}
+                style={{ fontSize: isMobile ? "0.95rem" : undefined }}
+              >
+                {crumb.path === "/" ? "Castle" : prettify(crumb.name)}
+              </button>
+            )}
+            {index < displayCrumbs.length - 1 && (
+              <ChevronRight className="w-4 h-4 text-slate-600 shrink-0" />
             )}
           </React.Fragment>
         ))}
@@ -186,7 +205,6 @@ export default function HomePage() {
 
   const openPdf = (file: FSFile) => {
     if (!isSignedIn) {
-      // Persist intended file so we can reopen after auth
       try {
         localStorage.setItem("pendingFileId", file.id);
       } catch {}
@@ -367,7 +385,7 @@ export default function HomePage() {
   const totalItems = folders.length + files.length;
 
   return (
-    <div className="premium-dashboard">
+  <div className="premium-dashboard w-full max-w-full px-2 sm:px-6">
       {/* Header with Search */}
       <div className="dashboard-header">
         <Breadcrumb />

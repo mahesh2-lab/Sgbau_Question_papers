@@ -18,7 +18,11 @@ type Profile = {
   session?: string;
 };
 export default function ResultPage() {
-  const { profile, loading: loading2, error: error2 } = useProfile() as { profile: Profile | null, loading: boolean, error: any };
+  const {
+    profile,
+    loading: loading2,
+    error: error2,
+  } = useProfile() as { profile: Profile | null; loading: boolean; error: any };
   const [form, setForm] = useState({
     rollNumber: "",
     courseType: "",
@@ -65,7 +69,6 @@ export default function ResultPage() {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="p-6 w-full max-w-none text-gray-200 h-full flex flex-col">
